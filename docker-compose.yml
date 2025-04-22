@@ -1,0 +1,33 @@
+x-teleop-config:
+  pairs:
+    - namespace: franka_ros2_teleop
+      leader:
+        robot_ip: enter_leader_ip_here
+      follower:
+        robot_ip: enter_follower_ip_here
+
+services:
+  franka_ros2_teleop:
+    image: ghcr.io/frankarobotics/franka_ros2_teleop:main
+    build:
+      target: application
+    volumes:
+      - type: bind
+        # If you change the name of this file, update the source path accordingly.
+        source: ./docker-compose.yml # Necessary to read above teleop config.
+        target: /config.yml
+    privileged: true
+    network_mode: host
+    cap_add:
+      - SYS_NICE
+      - NET_ADMIN
+    ulimits:
+      rtprio:
+        soft: 99
+        hard: 99
+      memlock:
+        soft: 102400
+        hard: 102400
+    environment:
+      RMW_IMPLEMENTATION: ${RMW_IMPLEMENTATION:-rmw_cyclonedds_cpp}
+      ROS_DOMAIN_ID: ${ROS_DOMAIN_ID:-230}

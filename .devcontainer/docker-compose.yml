@@ -1,0 +1,12 @@
+services:
+  franka_ros2_teleop_devcontainer:
+    extends:
+      file: ../docker-compose.yml
+      service: franka_ros2_teleop
+    build:
+      context: ..
+      target: devcontainer
+    volumes:
+      - ../:/home/franka/ros2_ws/src/franka_ros2_teleop/:cached
+    tty: true
+    entrypoint: [ "/bin/bash" ]

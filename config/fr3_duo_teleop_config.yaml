@@ -1,0 +1,17 @@
+# This example configuration shows how to configure a teleoperable humanoid setup using a Franka FR3_Duo robot.
+# Replace the IP addresses with the actual robot addresses
+
+namespace: fr3_duo
+
+pairs:
+  - namespace: left
+    leader:
+      robot_ip: add_left_leader_robot_address_here
+    follower:
+      robot_ip: add_left_follower_robot_address_here
+  - namespace: right
+    leader:
+      robot_ip: add_right_leader_robot_address_here
+    follower:
+      robot_ip: add_right_follower_robot_address_here
+

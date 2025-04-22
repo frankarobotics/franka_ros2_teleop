@@ -1,0 +1,115 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*.*.*' ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  BUILDX_NO_DEFAULT_ATTESTATIONS: "true"
+
+
+jobs:
+  test_and_build_demo:
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: read
+      packages: write
+      id-token: write
+      checks: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          path: source
+
+      # Set up BuildKit Docker container builder to be able to build
+      # multi-platform images and export cache
+      # https://github.com/docker/setup-buildx-action
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker Image for Testing
+        uses: docker/build-push-action@v6
+        with:
+          context: source
+          tags: franka_ros2_teleop:testing
+          target: devcontainer
+          file: source/Dockerfile
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          push: false
+          load: true
+
+      - name: Run ROS2 Tests
+        uses: addnab/docker-run-action@v3
+        with:
+          image: franka_ros2_teleop:testing
+          options: |
+            -v ${{ github.workspace }}/tmp_build:/home/franka/ros2_ws/build
+            -v ${{ github.workspace }}/source:/home/franka/ros2_ws/src/franka_ros2_teleop
+            -u 0:0
+          run: |
+            . /opt/ros/humble/setup.sh
+            cd /home/franka/ros2_ws
+            colcon build --packages-up-to franka_ros2_teleop --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCHECK_TIDY=ON
+            colcon test --packages-select franka_ros2_teleop
+            colcon test-result --verbose
+
+      - name: Upload Tests to Artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: tmp_build/*/test_results/*/*.xml
+
+      - name: Publish Unit Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          files: tmp_build/*/test_results/*/*.xml
+
+      # Login against a Docker registry except on PR
+      # https://github.com/docker/login-action
+      - name: Docker Login
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Extract metadata (tags, labels) for Docker
+      # https://github.com/docker/metadata-action
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          labels: |
+            org.opencontainers.image.ref.name=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}
+            org.opencontainers.image.description=Demo for Force-Sensitive Teleoperation of Franka Robots in ROS2
+            org.opencontainers.image.authors=Franka Robotics GmbH <support@franka.de>
+            org.opencontainers.image.vendor=Franka Robotics GmbH
+            org.opencontainers.image.documentation=https://github.com/frankarobotics/franka_ros2_teleop
+            org.opencontainers.image.licenses=Apache 2.0
+
+      # Build and push Docker image with Buildx (don't push on PR)
+      # https://github.com/docker/build-push-action
+      - name: Build and push demo Docker image
+        id: build-and-push
+        uses: docker/build-push-action@v6
+        with:
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

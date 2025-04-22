@@ -1,0 +1,16 @@
+<library path="franka_ros2_teleop">
+    <class name="franka_ros2_teleop/TeleopLeaderController"
+           type="franka_ros2_teleop::TeleopLeaderController" base_class_type="controller_interface::ControllerInterface">
+        <description>
+            The TeleopLeaderController puts the robot in zero-gravity mode so it can be handguided.
+            It also receives the external forces from the follower's state broadcaster and replays them on the robot.
+            This way obstacles encountered by the follower can be 'felt' by the person handguiding the leader.
+        </description>
+    </class>
+    <class name="franka_ros2_teleop/TeleopFollowerController"
+           type="franka_ros2_teleop::TeleopFollowerController" base_class_type="controller_interface::ControllerInterface">
+        <description>
+            The TeleopFollowerController runs a Joint Impedance Controller that receives its target position from the leader's state brodacaster.
+        </description>
+    </class>
+</library>

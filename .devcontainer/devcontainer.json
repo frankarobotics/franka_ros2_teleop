@@ -1,0 +1,41 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/docker-outside-of-docker-compose
+{
+	"name": "franka_ros_teleop_devcontainer",
+	"dockerComposeFile": "docker-compose.yml",
+	"service": "franka_ros2_teleop_devcontainer",
+	"workspaceFolder": "/home/franka/ros2_ws",
+	// Use this environment variable if you need to bind mount your local source code into a new container.
+	"remoteEnv": {
+		"LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}"
+	},
+	"remoteUser": "franka",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-python.python",
+				"ms-python.vscode-pylance",
+				"ms-vscode.cpptools",
+				"xaver.clang-format",
+				"twxs.cmake",
+				"Ranch-Hand-Robotics.rde-ros-2",
+				"Ranch-Hand-Robotics.urdf-editor",
+				"Ranch-Hand-Robotics.rde-pack",
+				"bierner.markdown-preview-github-styles",
+				"bierner.github-markdown-preview",
+				"yahyabatulu.vscode-markdown-alert"
+			],
+			"settings": {
+				"python.analysis.extraPaths": [
+					"/opt/ros/humble/lib/python3.10/site-packages"
+				],
+				"terminal.integrated.defaultProfile.linux": "bash",
+				"terminal.integrated.profiles.linux": {
+					"bash": {
+						"path": "/bin/bash"
+					}
+				}
+			}
+		}
+	}
+}
