@@ -316,15 +316,15 @@ def add_pair(pair_config) -> List[LaunchDescriptionEntity]:
                 ),
                 *get_action_remapping(
                     "~/follower/franka_gripper/homing",
-                    f"/{leader_namespace}/franka_gripper/homing"
+                    f"/{follower_namespace}/franka_gripper/homing"
                 ),
                 *get_action_remapping(
                     "~/follower/franka_gripper/grasp",
-                    f"/{leader_namespace}/franka_gripper/grasp"
+                    f"/{follower_namespace}/franka_gripper/grasp"
                 ),
                 *get_action_remapping(
                     "~/follower/franka_gripper/move",
-                    f"/{leader_namespace}/franka_gripper/move"
+                    f"/{follower_namespace}/franka_gripper/move"
                 ),
             ],
         )
