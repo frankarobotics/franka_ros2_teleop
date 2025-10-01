@@ -1,11 +1,11 @@
-FROM ghcr.io/sloretz/ros:humble-desktop-full AS devcontainer
+FROM ghcr.io/sloretz/ros:humble-desktop-full-2025-09-28 AS devcontainer
 
 RUN mkdir -p /ros2_ws/src
 
 ARG ROS_DISTRIBUTION="humble"
-ARG FRANKA_ROS2_VERSION="v2.0.2"
-ARG FRANKA_DESCRIPTION_VERSION="1.0.1"
-ARG LIBFRANKA_VERSION="0.15.0"
+ARG FRANKA_ROS2_VERSION="v2.0.4"
+ARG FRANKA_DESCRIPTION_VERSION="1.0.2"
+ARG LIBFRANKA_VERSION="0.16.0"
 
 # Add non-root user
 ARG USERNAME=franka
@@ -45,13 +45,13 @@ FROM devcontainer AS application
 
 COPY . src/franka_ros2_teleop/
 
-RUN source /opt/ros/${ROS_DISTRIBUTION}/setup.bash && colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=off
+RUN source /opt/ros/${ROS_DISTRIBUTION}/setup.bash && colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release
 
 USER root
 
 ARG TARGETARCH
 
-RUN wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_${TARGETARCH} -O /usr/local/bin/yq &&\
+RUN wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_${TARGETARCH} -O /usr/local/bin/yq && \
     chmod +x /usr/local/bin/yq
 
 USER $USERNAME
